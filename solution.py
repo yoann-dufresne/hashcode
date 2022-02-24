@@ -89,7 +89,6 @@ class Solution:
 
         for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
-            #print(people_skills[person.name])
 
         def all_available(people, occupations):
             return all([p not in occupations or occupations[p] is None for p in people])
@@ -97,6 +96,7 @@ class Solution:
         # loop over days
         while True:
             if len(pending_projects) == 0 and len(current_projects) == 0: break
+            print(pending_projects,"pending")
 
             # start new projects
             new_pending_projects = []
