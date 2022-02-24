@@ -42,49 +42,74 @@ class Solution:
             if i % 2 == 0:
                 project_name = line
             else:
-                self.assignments += (project_name,line.split())
+                self.assignments += [(project_name,line.split())]
 
     
     def score(self, problem):
         day = 0
         current_projects = None
         occupations = dict()
-        pending_projects = self.assignments.items()
-        
+        pending_projects = self.assignments[:]
+        time_remaining = {}
+        total_time = {}
+        project_scores = {}
+        best_before = {}
+        people_skills = {}
+        final_score = 0
+
+        for project in problem.projects:
+            total_time[project.name] = project.D
+            project_scores[project.name] = project.S
+            best_before[project.name] = project.B
+
+        for person in problem.contribs:
+            people_skills[person] = dict(person.skills.items())
+
+        def all_available(people, occupations):
+            return all([occupations[p] is None for p in people])
+
         # loop over days
         while True:
 
             # start new projects
             new_pending_projects = []
-            for p in pending_projects:
-                contributors = problem.projects[p].contributors
-                if all_available(contributors):
-                    current_projects += [project]
-                    for contributor in contributors:
-                        occupations[contributor] = current_project.id
+            print(pending_projects)
+            for project_name, people in pending_projects:
+                if all_available(people, occupations):
+                    current_projects += [project_name]
+                    for person_name in people:
+                        occupations[person_name] = project_name
+                    time_remaining[project_name] = total_time[project_name] 
                 else:
-                    new_pending_projects += [project]
+                    new_pending_projects += [(project_name, people)]
             pending_projects = new_pending_projects
             
             # advance current projects
-            for project in current_projects:
-                project.time_remaining -= 1
+            for project_name in current_projects:
+                time_remaining[projet_name] -= 1
             
             # finish current projects
             new_current_projects = []
-            for project in current_projects:
-                if project.time_remaining == -1:
+            for project_name in current_projects:
+                if time_remaining[project_name] == -1:
                     # free contributors
-                    for contributor in project.contributors:
-                        occupations[contributor] = None
-                    # increase skills of contributor
-                    for skill in project.skills:
-                        for contributor in project.contributors:
-                            if self.contrib.skill[skill] >= project.skills[skill]:
-                                self.contrib.skill[skill] += 1
+                    project_skills = [p.skills for p in problem.projects if p.name == project_name]
+                    for person_name in occupations:
+                        if occupations[person_name] == project_name:
+                            occupations[person_name] = None
+                        # increase skills of contributor
+                        for skill in skills:
+                            if people_skills[person_name][skill] >= skills[skill]:
+                                people_skills[skill] += 1
+                    # calculate score
+                    if day <= best_before[project_name]:
+                        final_score += project_scores[project_name]
+                    else:
+                        final_score += max(0,project_scores[project_name]-(day-best_before[project_name]))
                 else:
-                    new_current_projects = project
+                    new_current_projects += [project_name]
             current_projects = new_current_projects
 
             # it's a new day
             day += 1
+        return final_score
