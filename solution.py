@@ -21,8 +21,21 @@ class Problem:
     def __init__(self, C, P):
         self.C = C
         self.P = P
-        self.contribs = []
-        self.projects = []
+        self.contribs = {}
+        self.projects = {}
+        self.contributor_skills = {}
+
+    def add_contrib(self, contributor):
+        self.contribs[contributor.name] = contributor
+        for skill in contributor.skills:
+            # New skill
+            if skill not in self.contributor_skills:
+                self.contributor_skills[skill] = [[] for _ in range(101)]
+            # level add
+            lvl = contributor.skills[skill]
+            self.contributor_skills[skill][lvl].append(contributor)
+
+
 
 class Solution:
     def __init__(self):
@@ -32,6 +45,7 @@ class Solution:
     def __repr__(self):
         str = f"Sol: {self.nb_projects} projects: {self.assignments}"
         return str
+
 
     def parse(self, solution_filename):
         solution_file_lines = open(solution_filename).readlines()
