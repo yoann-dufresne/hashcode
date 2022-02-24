@@ -1,5 +1,5 @@
 from solution import *
-from sys import stdin, stderr
+from sys import stdin, stderr, argv
 from operator import itemgetter
 
 
@@ -118,4 +118,5 @@ if __name__ == "__main__":
 
     solution.print()
     solution.print(stderr)
-    print(solution.score(problem))
+    if "--sol" in argv:
+        print(solution.score(problem))
