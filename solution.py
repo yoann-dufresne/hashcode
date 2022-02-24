@@ -27,10 +27,10 @@ class Problem:
 class Solution:
     def __init__(self):
         self.nb_projects = 0
-        self.assignments = {}
+        self.assignments = []
 
     def __repr__(self):
-        str = f"Sol: {self.nb_projects} projects"
+        str = f"Sol: {self.nb_projects} projects: {self.assignments}"
         return str
 
     def parse(self, solution_filename):
@@ -42,14 +42,14 @@ class Solution:
             if i % 2 == 0:
                 project_name = line
             else:
-                self.assignments[project_name]=line.split()
+                self.assignments += (project_name,line.split())
 
     
     def score(self, problem):
         day = 0
         current_projects = None
         occupations = dict()
-        pending_projects = []
+        pending_projects = self.assignments.items()
         
         # loop over days
         while True:

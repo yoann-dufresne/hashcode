@@ -46,4 +46,4 @@ if __name__ == "__main__":
     solution.parse("data/sol_a.txt")
 
     print(solution)
-    print(Solution.score(problem))
+    print(solution.score(problem))
