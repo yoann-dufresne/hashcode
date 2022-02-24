@@ -26,20 +26,30 @@ class Problem:
 
 class Solution:
     def __init__(self):
-        pass
+        self.nb_projects = 0
+        self.assignments = {}
 
     def __repr__(self):
-        return ""
+        str = f"Sol: {self.nb_projects} projects"
+        return str
 
-    def score(solution_filename, problem):
+    def parse(self, solution_filename):
         solution_file_lines = open(solution_filename).readlines()
-        nb_projects = int(solution_file_lines[0])
+        self.nb_projects = int(solution_file_lines[0])
+        
+        for i in range(len(solution_file_lines)-1):
+            line = solution_file_lines[i+1].strip()
+            if i % 2 == 0:
+                project_name = line
+            else:
+                self.assignments[project_name]=line.split()
+
+    
+    def score(self, problem):
         day = 0
         current_projects = None
         occupations = dict()
         pending_projects = []
-        for i in range(len(solution_file_lines)-1):
-            solution_file_lines[i+1]
         
         # loop over days
         while True:
@@ -47,7 +57,7 @@ class Solution:
             # start new projects
             new_pending_projects = []
             for p in pending_projects:
-                = problem.projects[p].contributors
+                contributors = problem.projects[p].contributors
                 if all_available(contributors):
                     current_projects += [project]
                     for contributor in contributors:
