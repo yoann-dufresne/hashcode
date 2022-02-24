@@ -56,7 +56,7 @@ def naive(problem):
                     break
             people_list.append(contrib)
         if None not in people_list:
-            sol.assignments.append([x.name for x in people_list])
+            sol.assignments.append((project.name,[x.name for x in people_list]))
             sol.nb_projects += 1
 
     return sol
