@@ -97,7 +97,6 @@ class Solution:
         # loop over days
         while True:
             if len(pending_projects) == 0 and len(current_projects) == 0: break
-            print(pending_projects,"pending")
 
             # start new projects
             new_pending_projects = []
