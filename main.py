@@ -62,17 +62,18 @@ def sort_by_score(projects):
 
 
 def naive(problem):
-    discarded_projects = list(problem.projects.values())
+    remaining_projects = list(problem.projects.values())
     people = list(problem.contribs.values())
 
     projects = []
 
     sol = Solution()
-    while len(discarded_projects) != len(projects):
-        print("ok")
-        projects = sort_by_score(discarded_projects)
-        print(len(projects))
-        discarded_projects = []
+    while len(remaining_projects) != len(projects):
+        #print("ok")
+        #projects = sort_by_score(remaining_projects)
+        projects = sorted(remaining_projects, key= lambda p:  1.0/(p.D*p.R))[::-1]
+        #print(len(projects))
+        remaining_projects = []
 
         for project in projects:
             used_people = set()
@@ -87,7 +88,7 @@ def naive(problem):
                                 used_people.add(c)
                         break
                 people_list.append(contrib)
-            print(people_list)
+            #print(people_list)
             if None not in people_list:
                 # Add asignment
                 sol.assignments.append((project.name,[x.name for x in people_list]))
@@ -105,7 +106,7 @@ def naive(problem):
                         problem.contributor_skills[skill][lvl+1].append(contrib)
                         # print("lvl up + ", contrib.name, skill, contrib.skills[skill])
             else:
-                discarded_projects.append(project)
+                remaining_projects.append(project)
 
     return sol
 
@@ -117,4 +118,4 @@ if __name__ == "__main__":
 
     solution.print()
     solution.print(stderr)
-    # print(solution.score(problem))
+    print(solution.score(problem))

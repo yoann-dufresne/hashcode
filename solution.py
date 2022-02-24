@@ -171,11 +171,11 @@ class Solution:
                     if day < best_before[project_name]:
                         points = project_scores[project_name]
                         project_done_by_best += 1
-                        print("[debug score]",project_name,"done on time",day,"before",best_before[project_name],"points",points)
+                        print("[debug score]",project_name,"done on time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
                     else:
                         project_done_after_best += 1
                         points = max(0,project_scores[project_name]-1-(day-best_before[project_name]))
-                        print("[debug score]", project_name,"done after time",day,"before",best_before[project_name],"points",points)
+                        print("[debug score]", project_name,"done after time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
                     final_score += points
                 else:
                     new_current_projects += [project_name]
