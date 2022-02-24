@@ -81,26 +81,31 @@ class Solution:
         best_before = {}
         people_skills = {}
         final_score = 0
+        max_day = 0
 
         for project in problem.projects.values():
             total_time[project.name] = project.D
             project_scores[project.name] = project.S
             best_before[project.name] = project.B
+            max_day = max(max_day, project.B*2+1)
 
         for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
 
-        def all_available(people, occupations):
-            return all([p not in occupations or occupations[p] is None for p in people])
-
         # loop over days
         while True:
-            if len(pending_projects) == 0 and len(current_projects) == 0: break
+            if day % 100 == 0:print(day)
+            if len(pending_projects) == 0 and len(current_projects) == 0 or day > max_day: break
 
             # start new projects
             new_pending_projects = []
             for project_name, people in pending_projects:
-                if all_available(people, occupations):
+                compatible = True
+                for p in people:
+                    if not (p not in occupations or occupations[p] is None):
+                        compatible = False
+                        break
+                if compatible:
                     current_projects += [project_name]
                     for person_name in people:
                         occupations[person_name] = project_name
