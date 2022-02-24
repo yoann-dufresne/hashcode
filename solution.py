@@ -94,7 +94,7 @@ class Solution:
 
         # loop over days
         while True:
-            if day % 100 == 0:print(day)
+            #if day % 100 == 0:print(day)
             if len(pending_projects) == 0 and len(current_projects) == 0 or day > max_day: break
 
             # start new projects
