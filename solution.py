@@ -14,6 +14,7 @@ class Project:
         self.B = B
         self.R = R
         self.contributors = []
+        self.tasks = []
         self.skills = {}
 
 class Problem:

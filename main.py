@@ -29,6 +29,7 @@ def parse():
             skill, lvl = stdin.readline().strip().split()
             lvl = int(lvl)
             project.skills[skill] = lvl
+            project.tasks.append((skill, lvl))
 
         prob.projects.append(project)
 
