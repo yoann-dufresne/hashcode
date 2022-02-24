@@ -1,3 +1,5 @@
+from sys import stdout
+
 
 class Contributor:
     def __init__(self, name, idx):
@@ -49,6 +51,11 @@ class Solution:
     def __repr__(self):
         str = f"Sol: {self.nb_projects} projects: {self.assignments}"
         return str
+
+    def print(self, stream=stdout):
+        print(len(self.assignments), file=stream)
+        for assignment in self.assignments:
+            print(" ".join(x for x in assignment), file=stream)
 
 
     def parse(self, solution_filename):

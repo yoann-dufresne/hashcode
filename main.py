@@ -70,4 +70,5 @@ if __name__ == "__main__":
     solution = naive(problem)
 
     print(solution)
+    solution.print()
     print(solution.score(problem))
