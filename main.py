@@ -1,5 +1,5 @@
 from solution import *
-from sys import stdin
+from sys import stdin, stderr
 
 
 def parse():
@@ -70,5 +70,5 @@ if __name__ == "__main__":
     solution = naive(problem)
 
     print(solution)
-    solution.print()
+    solution.print(stderr)
     print(solution.score(problem))

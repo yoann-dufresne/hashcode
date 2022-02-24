@@ -1,4 +1,4 @@
-from sys import stdout
+from sys import stdout, stderr
 
 
 class Contributor:
@@ -55,7 +55,8 @@ class Solution:
     def print(self, stream=stdout):
         print(len(self.assignments), file=stream)
         for assignment in self.assignments:
-            print(" ".join(x for x in assignment), file=stream)
+            print(assignment[0], file=stream)
+            print(" ".join(x for x in assignment[1]), file=stream)
 
 
     def parse(self, solution_filename):
