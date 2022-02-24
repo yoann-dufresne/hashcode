@@ -71,7 +71,7 @@ def naive(problem):
     while len(remaining_projects) != len(projects):
         #print("ok")
         #projects = sort_by_score(remaining_projects)
-        projects = sorted(remaining_projects, key= lambda p:  1.0/(p.D*p.R))[::-1]
+        projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D*p.R))[::-1]
         #print(len(projects))
         remaining_projects = []
 
