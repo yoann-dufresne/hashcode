@@ -1,8 +1,19 @@
 
 class Contributor:
-    def __init__(self, name, id):
+    def __init__(self, name, idx):
         self.name = name
-        self.id = id
+        self.idx = idx
+        self.skills = {}
+
+class Project:
+    def __init__(self, name, idx, D, S, B, R):
+        self.name = name
+        self.idx = idx
+        self.D = D
+        self.S = S
+        self.B = B
+        self.R = R
+        self.contributors = []
         self.skills = {}
 
 class Problem:

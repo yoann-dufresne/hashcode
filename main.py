@@ -18,6 +18,20 @@ def parse():
 
         prob.contribs.append(cont)
 
+    for p_idx in range(P):
+        sp = stdin.readline().strip().split()
+        name = sp[0]
+        D, S, B, R = [int(x) for x in sp[1:]]
+
+        project = Project(name, p_idx, D, S, B, R)
+
+        for _ in range(R):
+            skill, lvl = stdin.readline().strip().split()
+            lvl = int(lvl)
+            project.skills[skill] = lvl
+
+        prob.projects.append(project)
+
     return prob
 
 
