@@ -71,4 +71,4 @@ if __name__ == "__main__":
 
     print(solution)
     solution.print(stderr)
-    print(solution.score(problem))
+    # print(solution.score(problem))
