@@ -5,6 +5,9 @@ class Contributor:
         self.idx = idx
         self.skills = {}
 
+    def __repr__(self):
+        return self.name
+
 class Project:
     def __init__(self, name, idx, D, S, B, R):
         self.name = name
@@ -34,6 +37,7 @@ class Problem:
             # level add
             lvl = contributor.skills[skill]
             self.contributor_skills[skill][lvl].append(contributor)
+            print(skill, "".join(f"{self.contributor_skills[skill][l]}" for l in range(101)))
 
 
 
@@ -71,12 +75,12 @@ class Solution:
         people_skills = {}
         final_score = 0
 
-        for project in problem.projects:
+        for project in problem.projects.values():
             total_time[project.name] = project.D
             project_scores[project.name] = project.S
             best_before[project.name] = project.B
 
-        for person in problem.contribs:
+        for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
             #print(people_skills[person.name])
 
@@ -108,7 +112,7 @@ class Solution:
             for project_name in current_projects:
                 if time_remaining[project_name] == 0:
                     # free contributors
-                    project_skills = [p.skills for p in problem.projects if p.name == project_name][0]
+                    project_skills = [p.skills for p in problem.projects.values() if p.name == project_name][0]
                     for person_name in occupations:
                         if occupations[person_name] == project_name:
                             occupations[person_name] = None

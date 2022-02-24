@@ -16,7 +16,7 @@ def parse():
             lvl = int(lvl)
             cont.skills[skill] = lvl
 
-        prob.contribs[name] = cont
+        prob.add_contrib(cont)
 
     for p_idx in range(P):
         sp = stdin.readline().strip().split()
@@ -59,12 +59,15 @@ def naive(problem):
             sol.assignments.append([x.name for x in people_list])
             sol.nb_projects += 1
 
+    return sol
+
 
 if __name__ == "__main__":
     problem = parse()
 
-    solution = Solution()
-    solution.parse("data/sol_a.txt")
+    # solution = Solution()
+    # solution.parse("data/sol_a.txt")
+    solution = naive(problem)
 
     print(solution)
     print(solution.score(problem))
