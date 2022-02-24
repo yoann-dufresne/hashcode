@@ -18,7 +18,6 @@ class Project:
         self.S = S
         self.B = B
         self.R = R
-        self.contributors = []
         self.tasks = []
         self.skills = []
 
@@ -81,8 +80,6 @@ class Solution:
     def score(self, problem):
         day = 0
         current_projects = []
-        occupations = dict()
-        pending_projects = self.assignments[:]
         time_remaining = {}
         total_time = {}
         project_scores = {}
@@ -93,8 +90,10 @@ class Solution:
         project_done_by_best = 0
         project_done_after_best =  0
         all_proj_skills = {}
-
-        print("test",pending_projects[:2])
+        available = set([c for c in problem.contribs])
+        project_people = {}
+        project_people_set = {}
+        next_project = {}
 
         for project in problem.projects.values():
             total_time[project.name] = project.D
@@ -102,6 +101,16 @@ class Solution:
             best_before[project.name] = project.B
             max_day = max(max_day, project.B*2+1)
             all_proj_skills[project.name] = project.skills
+
+        pending_projects = []
+        for project_name, people in self.assignments:
+            project_people[project_name] = people
+            project_people_set[project_name]= set(people)
+            pending_projects += [project_name]
+            for p in people:
+                if p not in next_project:
+                    next_project[p] = []
+                next_project[p] += [project_name]
 
         for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
@@ -113,47 +122,51 @@ class Solution:
 
             # start new projects
             new_pending_projects = []
-            for project_name, people in pending_projects:
+            for project_name in pending_projects:
                 #print(f"[debug scorer] day {day} testing project {project_name}")
                 compatible = True
                 project_skills = all_proj_skills[project_name]
-                for i,p in enumerate(people):
-                    if not (p not in occupations or occupations[p] is None):
-                        compatible = False
-                        break
-                    skill, needed_lvl = project_skills[i] 
-                    if people_skills[p][skill] < needed_lvl:
-                        compatible = False
-                        break
+                if not project_people_set[project_name].issubset(available):
+                    compatible = False
                 if compatible:
-                    current_projects += [(project_name, people)]
-                    for person_name in people:
-                        occupations[person_name] = project_name
+                    people = project_people[project_name]
+                    for i,p in enumerate(people):
+                        skill, needed_lvl = project_skills[i] 
+                        if people_skills[p][skill] < needed_lvl:
+                            compatible = False
+                            break
+                        if project_name != next_project[p][0]:
+                            compatible = False
+                            break
+                if compatible:
+                    current_projects += [project_name]
                     time_remaining[project_name] = total_time[project_name]
+                    available -= project_people_set[project_name]
                 else:
                     #print(f"[debug scorer] day {day}: incompatible project {project_name}")
-                    new_pending_projects += [(project_name, people)]
+                    new_pending_projects += [project_name]
             pending_projects = new_pending_projects
             
             # advance current projects
-            for project_name, people in current_projects:
+            for project_name in current_projects:
                 time_remaining[project_name] -= 1
             
             # finish current projects
             new_current_projects = []
-            for project_name, people in current_projects:
+            for project_name in current_projects:
                 if time_remaining[project_name] == 0:
                     # free contributors
+                    people = project_people_set[project_name]
+                    available |= people
                     project_skills = all_proj_skills[project_name]
                     for i,person_name in enumerate(people):
-                        if occupations[person_name] == project_name:
-                            occupations[person_name] = None
-                            # increase skills of contributor
-                            skill, lvl = project_skills[i]
-                            if skill not in people_skills[person_name]:
-                                people_skills[person_name][skill] = 0
-                            if people_skills[person_name][skill] >= lvl:
-                                people_skills[person_name][skill] += 1
+                        # increase skills of contributor
+                        skill, lvl = project_skills[i]
+                        if skill not in people_skills[person_name]:
+                            people_skills[person_name][skill] = 0
+                        if people_skills[person_name][skill] >= lvl:
+                            people_skills[person_name][skill] += 1
+                        next_project[person_name] = next_project[person_name][1:]
                     # calculate score
                     if day < best_before[project_name]:
                         points = project_scores[project_name]
@@ -165,7 +178,7 @@ class Solution:
                         print("[debug score]", project_name,"done after time",day,"before",best_before[project_name],"points",points)
                     final_score += points
                 else:
-                    new_current_projects += [(project_name, people)]
+                    new_current_projects += [project_name]
             current_projects = new_current_projects
 
             # it's a new day
