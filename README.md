@@ -42,3 +42,11 @@ Ns_cont = number of skills per contributor
 #### Score vs. Best Before
 
 ![score bs best before](dataviz/score_vs_best_before.png)
+
+#### Score vs. Duration
+
+![Score vs duration](dataviz/score_vs_duration.png)
+
+#### Duration vs. Best before
+
+![duration vs. Best before](dataviz/duration_vs_best_before.png)
