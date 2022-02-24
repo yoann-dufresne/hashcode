@@ -14,7 +14,9 @@ Command should be like
 - A data directory for the instances
 - pdf of the problem in the root dir
 
-## Data descriptors
+## Data "Mining"
+
+### Decsriptors
 
 C = Number of contributors
 P = Number of projects
@@ -30,3 +32,13 @@ Ns_cont = number of skills per contributor
 | d    | 500  | 1000  | 188 | 12.868             | 7.096402957480285  | 1                  | 0.0                  |
 | e    | 800  | 10000 | 800 | 7.6749             | 5.032985504082883  | 1                  | 0.0                  |
 | f    | 1000 | 19413 | 500 | 24.764281666924226 | 9.70821301813859   | 2.56               | 1.26649279666487     |
+
+### Visualizations
+
+#### Distribution of Best Before
+
+![best before distrib](dataviz/best_before_distrib.png)
+
+#### Score vs. Best Before
+
+![score bs best before](dataviz/score_vs_best_before.png)
