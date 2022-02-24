@@ -36,6 +36,64 @@ def parse():
     return prob
 
 
+def naive2(problem):
+    discarded_projects = list(problem.projects.values())
+    people = list(problem.contribs.values())
+
+    projects = []
+    sol = Solution()
+    temp_pr = []
+
+    for project in projects:
+        mx_lvl = 0
+        for ts in project.tasks:
+            if ts[1] > mx_lvl:
+                mx_lvl = ts[1]
+        temp_pr.append((project,mx_lvl,project.B))
+
+    sorted_pr = sorted(temp_pr, key = itemgetter(1,2))
+    new_pr = []
+    for el in sorted_pr:
+        new_pr.append(el[0])
+    projects = new_pr
+
+    while len(discarded_projects) != len(projects):
+        print("ok")
+        projects = discarded_projects
+        discarded_projects = []
+
+        for project in projects:
+            used_people = set()
+            people_list = []
+            for skill, lvl in project.tasks:
+                contrib = None
+                for possible_contrib in problem.contributor_skills[skill][lvl:]:
+                    if len(possible_contrib) > 0:
+                        for c in possible_contrib:
+                            if c not in used_people:
+                                contrib = c
+                                used_people.add(c)
+                        break
+                people_list.append(contrib)
+            print(people_list)
+            if None not in people_list:
+                # Add asignment
+                sol.assignments.append((project.name,[x.name for x in people_list]))
+                sol.nb_projects += 1
+                # Skill up people
+                for idx, task in enumerate(project.tasks):
+                    skill, _ = task
+                    contrib = people_list[idx]
+                    lvl = contrib.skills[skill]
+
+                    if lvl < 100:
+                        problem.contributor_skills[skill][lvl].remove(contrib)
+                        contrib.skills[skill] += 1
+                        problem.contributor_skills[skill][lvl+1].append(contrib)
+            else:
+                discarded_projects.append(project)
+
+    return sol
 
 def naive(problem):
     discarded_projects = list(problem.projects.values())
