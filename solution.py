@@ -80,7 +80,7 @@ class Solution:
                     current_projects += [project_name]
                     for person_name in people:
                         occupations[person_name] = project_name
-                    time_remaining[project_name] = total_time[project_name] 
+                    time_remaining[project_name] = total_time[project_name]
                 else:
                     new_pending_projects += [(project_name, people)]
             pending_projects = new_pending_projects
@@ -92,7 +92,7 @@ class Solution:
             # finish current projects
             new_current_projects = []
             for project_name in current_projects:
-                if time_remaining[project_name] == -1:
+                if time_remaining[project_name] == 0:
                     # free contributors
                     project_skills = [p.skills for p in problem.projects if p.name == project_name][0]
                     for person_name in occupations:
