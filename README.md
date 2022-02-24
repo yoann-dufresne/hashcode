@@ -4,7 +4,7 @@
 
 Command should be like
 ```bash
-  python3 main.py <args>
+  python3 main.py < infile.txt
 ```
 
 
