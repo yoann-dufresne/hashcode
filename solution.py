@@ -39,7 +39,6 @@ class Problem:
             # level add
             lvl = contributor.skills[skill]
             self.contributor_skills[skill][lvl].append(contributor)
-            print(skill, "".join(f"{self.contributor_skills[skill][l]}" for l in range(101)))
 
 
 

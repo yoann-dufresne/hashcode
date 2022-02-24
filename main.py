@@ -56,8 +56,19 @@ def naive(problem):
                     break
             people_list.append(contrib)
         if None not in people_list:
+            # Add asignment
             sol.assignments.append((project.name,[x.name for x in people_list]))
             sol.nb_projects += 1
+            # Skill up people
+            for idx, task in enumerate(project.tasks):
+                skill, _ = task
+                contrib = people_list[idx]
+                lvl = contrib.skills[skill]
+
+                if lvl < 100:
+                    problem.contributor_skills[skill][lvl].remove(contrib)
+                    contrib.skills[skill] += 1
+                    problem.contributor_skills[skill][lvl+1].append(contrib)
 
     return sol
 
@@ -65,10 +76,7 @@ def naive(problem):
 if __name__ == "__main__":
     problem = parse()
 
-    # solution = Solution()
-    # solution.parse("data/sol_a.txt")
     solution = naive(problem)
 
-    print(solution)
     solution.print(stderr)
     # print(solution.score(problem))
