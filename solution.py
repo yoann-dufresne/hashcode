@@ -100,7 +100,6 @@ class Solution:
                             occupations[person_name] = None
                         # increase skills of contributor
                         for skill in project_skills:
-                            print(skill)
                             if skill not in people_skills[person_name]:
                                 people_skills[person_name][skill] = 0
                             if people_skills[person_name][skill] >= project_skills[skill]:
