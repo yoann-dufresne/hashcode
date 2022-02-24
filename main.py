@@ -69,14 +69,16 @@ def naive(problem):
                 sol.nb_projects += 1
                 # Skill up people
                 for idx, task in enumerate(project.tasks):
-                    skill, _ = task
+                    skill, taks_lvl = task
                     contrib = people_list[idx]
                     lvl = contrib.skills[skill]
 
-                    if lvl < 100:
+                    if lvl < 100 and ((taks_lvl == lvl) or (taks_lvl == lvl+1)):
+                        # print("lvl up - ", contrib.name, skill, contrib.skills[skill])
                         problem.contributor_skills[skill][lvl].remove(contrib)
                         contrib.skills[skill] += 1
                         problem.contributor_skills[skill][lvl+1].append(contrib)
+                        # print("lvl up + ", contrib.name, skill, contrib.skills[skill])
             else:
                 discarded_projects.append(project)
 
