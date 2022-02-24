@@ -20,7 +20,7 @@ class Project:
         self.R = R
         self.contributors = []
         self.tasks = []
-        self.skills = {}
+        self.skills = []
 
 class Problem:
     def __init__(self, C, P):
@@ -56,7 +56,15 @@ class Solution:
         for assignment in self.assignments:
             print(assignment[0], file=stream)
             print(" ".join(x for x in assignment[1]), file=stream)
-
+    
+    def write(self, out_filename):
+        g = open(out_filename,"w")
+        g.write(str(len(self.assignments))+"\n")
+        for assignment in self.assignments:
+            g.write(assignment[0]+"\n")
+            g.write(" ".join(x for x in assignment[1])+"\n")
+        g.close()
+ 
 
     def parse(self, solution_filename):
         solution_file_lines = open(solution_filename).readlines()
@@ -82,66 +90,87 @@ class Solution:
         people_skills = {}
         final_score = 0
         max_day = 0
+        project_done_by_best = 0
+        project_done_after_best =  0
+        all_proj_skills = {}
+
+        print("test",pending_projects[:2])
 
         for project in problem.projects.values():
             total_time[project.name] = project.D
             project_scores[project.name] = project.S
             best_before[project.name] = project.B
             max_day = max(max_day, project.B*2+1)
+            all_proj_skills[project.name] = project.skills
 
         for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
 
         # loop over days
         while True:
-            #if day % 100 == 0:print(day)
+            if day % 10000 == 0:print("scoring day",day)
             if len(pending_projects) == 0 and len(current_projects) == 0 or day > max_day: break
 
             # start new projects
             new_pending_projects = []
             for project_name, people in pending_projects:
+                #print(f"[debug scorer] day {day} testing project {project_name}")
                 compatible = True
-                for p in people:
+                project_skills = all_proj_skills[project_name]
+                for i,p in enumerate(people):
                     if not (p not in occupations or occupations[p] is None):
                         compatible = False
                         break
+                    skill, needed_lvl = project_skills[i] 
+                    if people_skills[p][skill] < needed_lvl:
+                        compatible = False
+                        break
                 if compatible:
-                    current_projects += [project_name]
+                    current_projects += [(project_name, people)]
                     for person_name in people:
                         occupations[person_name] = project_name
                     time_remaining[project_name] = total_time[project_name]
                 else:
+                    #print(f"[debug scorer] day {day}: incompatible project {project_name}")
                     new_pending_projects += [(project_name, people)]
             pending_projects = new_pending_projects
             
             # advance current projects
-            for project_name in current_projects:
+            for project_name, people in current_projects:
                 time_remaining[project_name] -= 1
             
             # finish current projects
             new_current_projects = []
-            for project_name in current_projects:
+            for project_name, people in current_projects:
                 if time_remaining[project_name] == 0:
                     # free contributors
-                    project_skills = [p.skills for p in problem.projects.values() if p.name == project_name][0]
-                    for person_name in occupations:
+                    project_skills = all_proj_skills[project_name]
+                    for i,person_name in enumerate(people):
                         if occupations[person_name] == project_name:
                             occupations[person_name] = None
-                        # increase skills of contributor
-                        for skill in project_skills:
+                            # increase skills of contributor
+                            skill, lvl = project_skills[i]
                             if skill not in people_skills[person_name]:
                                 people_skills[person_name][skill] = 0
-                            if people_skills[person_name][skill] >= project_skills[skill]:
+                            if people_skills[person_name][skill] >= lvl:
                                 people_skills[person_name][skill] += 1
                     # calculate score
                     if day < best_before[project_name]:
-                        final_score += project_scores[project_name]
+                        points = project_scores[project_name]
+                        project_done_by_best += 1
+                        print("[debug score]",project_name,"done on time",day,"before",best_before[project_name],"points",points)
                     else:
-                        final_score += max(0,project_scores[project_name]-1-(day-best_before[project_name]))
+                        project_done_after_best += 1
+                        points = max(0,project_scores[project_name]-1-(day-best_before[project_name]))
+                        print("[debug score]", project_name,"done after time",day,"before",best_before[project_name],"points",points)
+                    final_score += points
                 else:
-                    new_current_projects += [project_name]
+                    new_current_projects += [(project_name, people)]
             current_projects = new_current_projects
 
             # it's a new day
             day += 1
+        verbose=True
+        if verbose:
+            print(f"solution calculated, {project_done_by_best} projects done before best, {project_done_after_best} after")
         return final_score
