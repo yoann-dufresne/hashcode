@@ -157,7 +157,7 @@ def naive(problem):
     sol = Solution()
     while len(remaining_projects) != len(projects):
         #projects = sort_by_score(remaining_projects)
-        projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D))[::-1]
+        projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D**2*p.R))[::-1]
 
         remaining_projects = []
         for project in projects:
@@ -173,6 +173,7 @@ def naive(problem):
                 # Add asignment
                 sol.assignments.append((project.name,[x.name for x in people_list]))
                 sol.nb_projects += 1
+
                 # decrease future availability of that person (good?)
                 for x in people_list:
                     nb_tasks[x.name] += 1
