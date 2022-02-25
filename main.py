@@ -62,8 +62,8 @@ def sort_by_score(projects):
     return projects
 
 def most_available(list_people):
-    return sorted(list_people, key=lambda x: x.nb_tasks)[::-1]
-    #return list_people
+    #return sorted(list_people, key=lambda x: x.nb_tasks)[::-1]
+    return sorted(list_people, key=lambda x: x.last_task)[::-1]
 
 def add_people(people_list, used_people, project, problem):
     # try adding people who have the required skills
@@ -173,9 +173,10 @@ def naive(problem):
                 sol.assignments.append((project.name,[x.name for x in people_list]))
                 sol.nb_projects += 1
 
-                # decrease future availability of that person (good?)
+                # gather stats on the person for future choices
                 for x in people_list:
                     x.nb_tasks += 1
+                    x.last_task = sol.nb_projects
 
                 skill_up_people(people_list, project, problem)
             else:
