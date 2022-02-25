@@ -1,6 +1,7 @@
 from solution import *
 from sys import stdin, stderr, argv
 from operator import itemgetter
+import greedy
 
 
 def parse():
@@ -146,6 +147,10 @@ def skill_up_people(people_list, project, problem):
             problem.contributor_skills[skill][lvl+1].append(contrib)
             # print("lvl up + ", contrib.name, skill, contrib.skills[skill])
 
+# naive greedy strategy: 
+# sort problems
+# then sort people for those problems
+
 def naive(problem):
     remaining_projects = list(problem.projects.values())
     people = list(problem.contribs.values())
@@ -189,6 +194,9 @@ if __name__ == "__main__":
     problem = parse()
 
     solution = naive(problem)
+   
+    # uncomment to switch to schedule-packing greedy
+    #solution = greedy.schedule_packing(problem)
 
     solution.print()
     solution.print(stderr)
