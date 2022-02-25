@@ -14,6 +14,15 @@ Command should be like
 - A data directory for the instances
 - pdf of the problem in the root dir
 
+## Best known score
+
+* a: 33
+* b:
+* c:
+* d:
+* e:
+* f:
+
 ## Data "Mining"
 
 ### Decsriptors
