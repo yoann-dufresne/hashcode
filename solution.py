@@ -6,6 +6,7 @@ class Contributor:
         self.name = name
         self.idx = idx
         self.skills = {}
+        self.nb_tasks = 0
 
     def __repr__(self):
         return self.name

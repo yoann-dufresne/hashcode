@@ -62,8 +62,8 @@ def sort_by_score(projects):
     return projects
 
 def most_available(list_people):
-    #return sorted(list_people, key=lambda x: nb_tasks[x.name])
-    return list_people
+    return sorted(list_people, key=lambda x: x.nb_tasks)[::-1]
+    #return list_people
 
 def add_people(people_list, used_people, project, problem):
     # try adding people who have the required skills
@@ -71,8 +71,8 @@ def add_people(people_list, used_people, project, problem):
         contrib = None
         for possible_contrib in problem.contributor_skills[skill][lvl:]:
             if len(possible_contrib) > 0:
-                #for c in most_available(possible_contrib):
-                for c in possible_contrib:
+                for c in most_available(possible_contrib):
+                #for c in possible_contrib:
                     if c.name not in used_people:
                         contrib = c
                         used_people.add(c.name)
@@ -151,7 +151,6 @@ def naive(problem):
     people = list(problem.contribs.values())
 
     from collections import Counter
-    nb_tasks = Counter()
     projects = []
 
     sol = Solution()
@@ -176,7 +175,7 @@ def naive(problem):
 
                 # decrease future availability of that person (good?)
                 for x in people_list:
-                    nb_tasks[x.name] += 1
+                    x.nb_tasks += 1
 
                 skill_up_people(people_list, project, problem)
             else:
