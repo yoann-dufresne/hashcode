@@ -160,6 +160,9 @@ def naive(problem):
                 for idx, task in enumerate(project.tasks):
                     skill, task_lvl = task
                     contrib = people_list[idx]
+                    if skill not in contrib.skills:
+                        contrib.skills[skill] = 0
+                        problem.contributor_skills[skill][0] += [contrib]
                     lvl = contrib.skills[skill]
 
                     if lvl < 100 and (task_lvl >= lvl):
