@@ -65,7 +65,21 @@ def most_available(list_people):
     #return sorted(list_people, key=lambda x: nb_tasks[x.name])
     return list_people
 
+def add_people(people_list, used_people, project, problem):
+    # try adding people who have the required skills
+    for skill, lvl in project.tasks:
+        contrib = None
+        for possible_contrib in problem.contributor_skills[skill][lvl:]:
+            if len(possible_contrib) > 0:
+                #for c in most_available(possible_contrib):
+                for c in possible_contrib:
+                    if c.name not in used_people:
+                        contrib = c
+                        used_people.add(c.name)
+                break
+        people_list.append(contrib)
 
+ 
 # mentorship program
 # Input: a list of people (people_list) assigned to project
 #        which may contain None entries, i.e. a skill was unfilled.
@@ -115,6 +129,23 @@ def add_mentees(people_list, used_people, project, problem):
                         print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
                         people_list[i] = contrib
 
+def skill_up_people(people_list, project, problem):
+    # Skill up people
+    for idx, task in enumerate(project.tasks):
+        skill, task_lvl = task
+        contrib = people_list[idx]
+        if skill not in contrib.skills:
+            contrib.skills[skill] = 0
+            problem.contributor_skills[skill][0] += [contrib]
+        lvl = contrib.skills[skill]
+
+        if lvl < 100 and (task_lvl >= lvl):
+            # print("lvl up - ", contrib.name, skill, contrib.skills[skill])
+            problem.contributor_skills[skill][lvl].remove(contrib)
+            contrib.skills[skill] += 1
+            problem.contributor_skills[skill][lvl+1].append(contrib)
+            # print("lvl up + ", contrib.name, skill, contrib.skills[skill])
+
 def naive(problem):
     remaining_projects = list(problem.projects.values())
     people = list(problem.contribs.values())
@@ -125,28 +156,17 @@ def naive(problem):
 
     sol = Solution()
     while len(remaining_projects) != len(projects):
-        #print("ok")
         #projects = sort_by_score(remaining_projects)
         projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D))[::-1]
-        #print(len(projects))
-        remaining_projects = []
 
+        remaining_projects = []
         for project in projects:
             used_people = set()
             people_list = []
-            # try adding competent people first
-            for skill, lvl in project.tasks:
-                contrib = None
-                for possible_contrib in problem.contributor_skills[skill][lvl:]:
-                    if len(possible_contrib) > 0:
-                        for c in most_available(possible_contrib):
-                            if c.name not in used_people:
-                                contrib = c
-                                used_people.add(c.name)
-                        break
-                people_list.append(contrib)
+            
+            add_people(people_list, used_people, project, problem)
 
-            add_mentees(people_list, used_people, project, problem)
+            #add_mentees(people_list, used_people, project, problem)
 
             #print(people_list)
             if None not in people_list:
@@ -156,21 +176,8 @@ def naive(problem):
                 # decrease future availability of that person (good?)
                 for x in people_list:
                     nb_tasks[x.name] += 1
-                # Skill up people
-                for idx, task in enumerate(project.tasks):
-                    skill, task_lvl = task
-                    contrib = people_list[idx]
-                    if skill not in contrib.skills:
-                        contrib.skills[skill] = 0
-                        problem.contributor_skills[skill][0] += [contrib]
-                    lvl = contrib.skills[skill]
 
-                    if lvl < 100 and (task_lvl >= lvl):
-                        # print("lvl up - ", contrib.name, skill, contrib.skills[skill])
-                        problem.contributor_skills[skill][lvl].remove(contrib)
-                        contrib.skills[skill] += 1
-                        problem.contributor_skills[skill][lvl+1].append(contrib)
-                        # print("lvl up + ", contrib.name, skill, contrib.skills[skill])
+                skill_up_people(people_list, project, problem)
             else:
                 remaining_projects.append(project)
 
