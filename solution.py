@@ -102,15 +102,17 @@ class Solution:
             max_day = max(max_day, project.B*2+1)
             all_proj_skills[project.name] = project.skills
 
-        pending_projects = []
         for project_name, people in self.assignments:
             project_people[project_name] = people
             project_people_set[project_name]= set(people)
-            pending_projects += [project_name]
             for p in people:
                 if p not in next_project:
                     next_project[p] = []
                 next_project[p] += [project_name]
+
+        immediate_next_projects = set()
+        for p in next_project:
+            immediate_next_projects.add(next_project[p][0])
 
         for person in problem.contribs.values():
             people_skills[person.name] = dict(person.skills.items())
@@ -118,11 +120,11 @@ class Solution:
         # loop over days
         while True:
             if day % 10000 == 0:print("scoring day",day)
-            if len(pending_projects) == 0 and len(current_projects) == 0 or day > max_day: break
+            if len(immediate_next_projects) == 0 and len(current_projects) == 0 or day > max_day: break
 
             # start new projects
-            new_pending_projects = []
-            for project_name in pending_projects:
+            new_immediate_next_projects = set()
+            for project_name in immediate_next_projects:
                 #print(f"[debug scorer] day {day} testing project {project_name}")
                 compatible = True
                 # check that the projected people are indeed available
@@ -173,8 +175,8 @@ class Solution:
                 else:
                     # if not, it goes back to the list of pending projects
                     #print(f"[debug scorer] day {day}: incompatible project {project_name}")
-                    new_pending_projects += [project_name]
-            pending_projects = new_pending_projects
+                    new_immediate_next_projects.add(project_name)
+            immediate_next_projects = new_immediate_next_projects
             
             # advance time in current projects
             for project_name in current_projects:
@@ -196,6 +198,8 @@ class Solution:
                         if people_skills[person_name][skill] >= lvl:
                             people_skills[person_name][skill] += 1
                         next_project[person_name] = next_project[person_name][1:]
+                        if len(next_project[person_name]) > 0:
+                            immediate_next_projects.add(next_project[person_name][0])
                     # calculate score
                     if day < best_before[project_name]:
                         points = project_scores[project_name]

@@ -65,9 +65,12 @@ def most_available(list_people):
     #return sorted(list_people, key=lambda x: nb_tasks[x.name])
     return list_people
 
+
+# mentorship program
 # Input: a list of people (people_list) assigned to project
 #        which may contain None entries, i.e. a skill was unfilled.
 # Output: a augmented list with people who will be mentored.
+
 def add_mentees(people_list, used_people, project, problem):
     # determine what skills are already available in the input list
     can_mentor = set()
