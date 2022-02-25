@@ -31,6 +31,7 @@ def parse():
             lvl = int(lvl)
             project.skills += [(skill, lvl)]
             project.tasks.append((skill, lvl))
+            project.mean_lvl = sum([x[1] for x in project.skills])/len(project.skills)
 
         prob.projects[name] = project
 
@@ -65,41 +66,88 @@ def naive(problem):
     remaining_projects = list(problem.projects.values())
     people = list(problem.contribs.values())
 
+    from collections import Counter
+    nb_tasks = Counter()
+    def most_available(list_people):
+        #return sorted(list_people, key=lambda x: nb_tasks[x.name])
+        return list_people
+
     projects = []
 
     sol = Solution()
     while len(remaining_projects) != len(projects):
         #print("ok")
         #projects = sort_by_score(remaining_projects)
-        projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D*p.R))[::-1]
+        projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D))[::-1]
         #print(len(projects))
         remaining_projects = []
 
         for project in projects:
             used_people = set()
             people_list = []
+            can_mentor = set()
+            # try adding competent people first
             for skill, lvl in project.tasks:
                 contrib = None
                 for possible_contrib in problem.contributor_skills[skill][lvl:]:
                     if len(possible_contrib) > 0:
-                        for c in possible_contrib:
-                            if c not in used_people:
+                        for c in most_available(possible_contrib):
+                            if c.name not in used_people:
                                 contrib = c
-                                used_people.add(c)
+                                used_people.add(c.name)
                         break
+                if contrib is not None:
+                    for other_skill in project.tasks:
+                        if skill == other_skill: continue
+                        if other_skill in contrib.skills and lvl >= contrib.skills[other_skill]:
+                            can_mentor.add(other_skill)
                 people_list.append(contrib)
+            # then retry by adding mentees when there's a mentor present
+            for i,x in enumerate(project.tasks):
+                skill, lvl = x
+                contrib = people_list[i]
+                if contrib is None:
+                    # try to add mentees
+                    if skill in can_mentor:
+                        possible_contrib = problem.contributor_skills[skill][lvl-1]
+                        if len(possible_contrib) > 0:
+                            for c in most_available(possible_contrib):
+                                if c.name not in used_people:
+                                    contrib = c
+                                    used_people.add(c.name)
+                            break
+                    if contrib is not None:
+                        people_list[i] = contrib
+            # finally, retry by adding anyone with a pulse ;) when needed skill is 1 and there's a mentor
+            for i,x in enumerate(project.tasks):
+                skill, lvl = x
+                if lvl != 1: continue
+                contrib = people_list[i]
+                if contrib is None:
+                    if skill in can_mentor:
+                        for c in most_available(people):
+                            if c.name not in used_people:
+                                contrib = c
+                                used_people.add(c.name)
+                                break
+                        if contrib is not None:
+                            people_list[i] = contrib
+ 
             #print(people_list)
             if None not in people_list:
                 # Add asignment
                 sol.assignments.append((project.name,[x.name for x in people_list]))
                 sol.nb_projects += 1
+                # decrease future availability of that person (good?)
+                for x in people_list:
+                    nb_tasks[x.name] += 1
                 # Skill up people
                 for idx, task in enumerate(project.tasks):
-                    skill, taks_lvl = task
+                    skill, task_lvl = task
                     contrib = people_list[idx]
                     lvl = contrib.skills[skill]
 
-                    if lvl < 100 and ((taks_lvl == lvl) or (taks_lvl == lvl+1)):
+                    if lvl < 100 and (task_lvl >= lvl):
                         # print("lvl up - ", contrib.name, skill, contrib.skills[skill])
                         problem.contributor_skills[skill][lvl].remove(contrib)
                         contrib.skills[skill] += 1

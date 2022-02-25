@@ -125,17 +125,41 @@ class Solution:
             for project_name in pending_projects:
                 #print(f"[debug scorer] day {day} testing project {project_name}")
                 compatible = True
-                project_skills = all_proj_skills[project_name]
                 if not project_people_set[project_name].issubset(available):
                     compatible = False
                 if compatible:
                     people = project_people[project_name]
+                    project_skills = all_proj_skills[project_name]
                     for i,p in enumerate(people):
-                        skill, needed_lvl = project_skills[i] 
-                        if people_skills[p][skill] < needed_lvl:
+                        if project_name != next_project[p][0]:
                             compatible = False
                             break
-                        if project_name != next_project[p][0]:
+                if compatible:
+                    # prelim check skill set
+                    borderline = False
+                    for i,p in enumerate(people):
+                        skill, needed_lvl = project_skills[i]
+                        lvl = people_skills[p][skill]
+                        if lvl < needed_lvl-1:
+                            compatible = False
+                            break
+                        if lvl == needed_lvl-1:
+                            borderline = True
+                if borderline and compatible:
+                    print("borderline skill check")
+                    can_mentor = set()
+                    # everyone's available, but some are borderline. now gather mentors skills
+                    for i,p in enumerate(people):
+                        skill, needed_lvl = project_skills[i] 
+                        for other_skill in people_skills[person.name]:
+                            if skill == other_skill: continue # not for the skill employed for
+                            lvl = people_skills[person.name][other_skill]
+                            if lvl >= needed_lvl:
+                                can_mentor.add(skill)
+                    # check mentoring possibility
+                    for i,p in enumerate(people):
+                        skill, needed_lvl = project_skills[i] 
+                        if people_skills[p][skill] == needed_lvl-1 and skill not in can_mentor:
                             compatible = False
                             break
                 if compatible:
