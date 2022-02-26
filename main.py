@@ -66,7 +66,8 @@ def most_available(list_people):
     #return sorted(list_people, key=lambda x: x.nb_tasks)[::-1]
     return sorted(list_people, key=lambda x: x.last_task)[::-1]
 
-def add_people(people_list, used_people, project, problem):
+def add_people(used_people, project, problem,stop_early=True):
+    people_list = []
     # try adding people who have the required skills
     for skill, lvl in project.tasks:
         contrib = None
@@ -79,6 +80,8 @@ def add_people(people_list, used_people, project, problem):
                         used_people.add(c.name)
                 break
         people_list.append(contrib)
+        if stop_early and contrib is None: break
+    return people_list
 
  
 # mentorship program
@@ -112,7 +115,7 @@ def add_mentees(people_list, used_people, project, problem):
                             used_people.add(c.name)
                     break
                 if contrib is not None:
-                    print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
+                    #print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
                     people_list[i] = contrib
     # finally, retry by adding anyone with a pulse ;) when a needed mentored skill has level 1
     for i,x in enumerate(project.tasks):
@@ -127,7 +130,7 @@ def add_mentees(people_list, used_people, project, problem):
                             used_people.add(c.name)
                             break
                     if contrib is not None:
-                        print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
+                        #print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
                         people_list[i] = contrib
 
 def skill_up_people(people_list, project, problem):
@@ -161,16 +164,19 @@ def naive(problem):
     sol = Solution()
     while len(remaining_projects) != len(projects):
         #projects = sort_by_score(remaining_projects)
+        #projects = sorted(remaining_projects, key= lambda p:  p.B)[::-1]
         projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D**2*p.R))[::-1]
 
         remaining_projects = []
         for project in projects:
             used_people = set()
-            people_list = []
             
-            add_people(people_list, used_people, project, problem)
-
-            #add_mentees(people_list, used_people, project, problem)
+            mentoring = False
+            if mentoring:
+               people_list = add_people(used_people, project, problem,stop_early=False)
+               add_mentees(people_list, used_people, project, problem)
+            else:
+               people_list = add_people(used_people, project, problem)
 
             #print(people_list)
             if None not in people_list:
@@ -179,9 +185,9 @@ def naive(problem):
                 sol.nb_projects += 1
 
                 # gather stats on the person for future choices
-                for x in people_list:
-                    x.nb_tasks += 1
-                    x.last_task = sol.nb_projects
+                for p in people_list:
+                    p.nb_tasks += 1
+                    p.last_task = sol.nb_projects
 
                 skill_up_people(people_list, project, problem)
             else:
@@ -192,13 +198,15 @@ def naive(problem):
 
 if __name__ == "__main__":
     problem = parse()
+    
+    problem.verbose = "--verbose" in argv
 
-    solution = naive(problem)
-   
-    # uncomment to switch to schedule-packing greedy
-    #solution = greedy.schedule_packing(problem)
+    if "--naive" in argv:
+        solution = naive(problem)
+    else: 
+        solution = greedy.schedule_packing(problem)
 
     solution.print()
     solution.print(stderr)
-    if "--sol" in argv:
+    if "--score" in argv:
         print(solution.score(problem))
