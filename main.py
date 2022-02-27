@@ -72,7 +72,7 @@ def sort_above_lvl(people,skill,lvl, used_people):
                                                     and c.name not in used_people]
     return [x[1] for x in sorted(res)]
 
-def add_people(used_people, available_people, project, problem,stop_early=True):
+def add_people(used_people,  project, problem,stop_early=True):
     people_list = []
     # try adding people who have the required skills
     has_someone = False
@@ -102,7 +102,7 @@ def add_people(used_people, available_people, project, problem,stop_early=True):
 #        which may contain None entries, i.e. a skill was unfilled.
 # Output: a augmented list with people who will be mentored.
 
-def add_mentees(people_list, used_people, available_people, project, problem):
+def add_mentees(people_list, used_people,  project, problem):
     # determine what skills are already available in the input list
     can_mentor = set()
     needs_someone = False
