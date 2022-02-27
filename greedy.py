@@ -79,6 +79,34 @@ def schedule_packing(problem):
         if day % 100 == 0:print("assigning day",day)
         if len(remaining_projects) == 0 and len(current_projects) == 0 or day > max_day: break
 
+        # finish current projects
+        if day in interesting_days:
+            new_current_projects = []
+            for project_name in current_projects:
+                if time_remaining[project_name] == 0:
+                    # free contributors
+                    people_set = project_people_set[project_name]
+                    used_people -= people_set
+                    #sorted_used_people = tuple(sorted(list(used_people)))
+                    # skill them up
+                    people = project_people[project_name]
+                    project = problem.projects[project_name]
+                    skill_up_people(people, project, problem)
+                    project_skills = all_proj_skills[project_name]
+                    # calculate score
+                    if day < best_before[project_name]:
+                        points = project_scores[project_name]
+                        project_done_by_best += 1
+                        if verbose: print("[debug greedy score]",project_name,"done on time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
+                    else:
+                        project_done_after_best += 1
+                        points = max(0,project_scores[project_name]-1-(day-best_before[project_name]))
+                        if verbose: print("[debug greedy score]", project_name,"done after time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
+                    final_score += points
+                else:
+                    new_current_projects += [project_name]
+            current_projects = new_current_projects
+
         # maybe start new projects
         new_remaining_projects = []
         if day in interesting_days:
@@ -106,12 +134,11 @@ def schedule_packing(problem):
                     #sorted_used_people = tuple(sorted(list(used_people)))
                     if verbose: print(f"[debug greedy] {project_name} assigned! day {day} with {len(people_list)} people")
                     current_projects += [project_name]
-                    interesting_days.add(day+total_time[project_name]-1)
+                    interesting_days.add(day+total_time[project_name])
                     time_remaining[project_name] = total_time[project_name]
                     project_people_set[project_name] = set([x.name for x in people_list])
                     project_people[project_name] = people_list[:] 
                     assert(len(people_list) == len(project.tasks))
-
 
                     # Add asignment
                     sol.assignments.append((project.name,[x.name for x in people_list]))
@@ -131,35 +158,6 @@ def schedule_packing(problem):
         # advance time in current projects
         for project_name in current_projects:
             time_remaining[project_name] -= 1
-        
-        # finish current projects
-        if day in interesting_days:
-            new_current_projects = []
-            for project_name in current_projects:
-                if time_remaining[project_name] == 0:
-                    interesting_days.add(day+1)
-                    # free contributors
-                    people_set = project_people_set[project_name]
-                    used_people -= people_set
-                    #sorted_used_people = tuple(sorted(list(used_people)))
-                    # skill them up
-                    people = project_people[project_name]
-                    project = problem.projects[project_name]
-                    skill_up_people(people, project, problem)
-                    project_skills = all_proj_skills[project_name]
-                    # calculate score
-                    if day < best_before[project_name]:
-                        points = project_scores[project_name]
-                        project_done_by_best += 1
-                        if verbose: print("[debug greedy score]",project_name,"done on time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
-                    else:
-                        project_done_after_best += 1
-                        points = max(0,project_scores[project_name]-1-(day-best_before[project_name]))
-                        if verbose: print("[debug greedy score]", project_name,"done after time",day,"before",best_before[project_name],"points",points,"total so far",final_score)
-                    final_score += points
-                else:
-                    new_current_projects += [project_name]
-            current_projects = new_current_projects
 
         # it's a new day
         day += 1
