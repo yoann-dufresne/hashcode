@@ -106,14 +106,12 @@ def schedule_packing(problem):
                     #sorted_used_people = tuple(sorted(list(used_people)))
                     if verbose: print(f"[debug greedy] {project_name} assigned! day {day} with {len(people_list)} people")
                     current_projects += [project_name]
+                    interesting_days.add(day+total_time[project_name]-1)
                     time_remaining[project_name] = total_time[project_name]
                     project_people_set[project_name] = set([x.name for x in people_list])
                     project_people[project_name] = people_list[:] 
                     assert(len(people_list) == len(project.tasks))
 
-                    interesting_days.add(day+total_time[project_name]-1)
-                    interesting_days.add(day+total_time[project_name])
-                    interesting_days.add(day+total_time[project_name]+1)
 
                     # Add asignment
                     sol.assignments.append((project.name,[x.name for x in people_list]))
@@ -139,6 +137,7 @@ def schedule_packing(problem):
             new_current_projects = []
             for project_name in current_projects:
                 if time_remaining[project_name] == 0:
+                    interesting_days.add(day+1)
                     # free contributors
                     people_set = project_people_set[project_name]
                     used_people -= people_set

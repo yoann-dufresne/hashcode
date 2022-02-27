@@ -129,6 +129,7 @@ class Solution:
             for project_name in immediate_next_projects:
                 #print(f"[debug scorer] day {day} testing project {project_name}")
                 compatible = True
+                borderline = False
                 # check that the projected people are indeed available
                 if not project_people_set[project_name].issubset(available):
                     compatible = False
