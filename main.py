@@ -66,11 +66,20 @@ def most_available(list_people):
     #return sorted(list_people, key=lambda x: x.nb_tasks)[::-1]
     return sorted(list_people, key=lambda x: x.last_task)[::-1]
 
-def add_people(used_people, project, problem,stop_early=True):
+def sort_above_lvl(people,skill,lvl, used_people):
+    res = [(c.skills[skill],c) for c in people \
+                               if skill in c.skills and c.skills[skill] >= lvl \
+                                                    and c.name not in used_people]
+    return [x[1] for x in sorted(res)]
+
+def add_people(used_people, available_people, project, problem,stop_early=True):
     people_list = []
     # try adding people who have the required skills
+    has_someone = False
+    needs_someone = False
     for skill, lvl in project.tasks:
         contrib = None
+        #for c in sort_above_lvl(available_people,skill,lvl, used_people): #good idea but 2slow
         for possible_contrib in problem.contributor_skills[skill][lvl:]:
             if len(possible_contrib) > 0:
                 for c in most_available(possible_contrib):
@@ -78,10 +87,14 @@ def add_people(used_people, project, problem,stop_early=True):
                     if c.name not in used_people:
                         contrib = c
                         used_people.add(c.name)
-                break
+                        has_someone = True
+                        break
+                if contrib is not None: break
         people_list.append(contrib)
         if stop_early and contrib is None: break
-    return people_list
+        if contrib is None: needs_someone = True
+
+    return people_list, has_someone, needs_someone
 
  
 # mentorship program
@@ -89,17 +102,23 @@ def add_people(used_people, project, problem,stop_early=True):
 #        which may contain None entries, i.e. a skill was unfilled.
 # Output: a augmented list with people who will be mentored.
 
-def add_mentees(people_list, used_people, project, problem):
+def add_mentees(people_list, used_people, available_people, project, problem):
     # determine what skills are already available in the input list
     can_mentor = set()
-    for i, contrib in enumerate(people_list):
-        skill,lvl = project.tasks[i]
+    needs_someone = False
+    mentees_added = 0
+    has_skill = {}
+    for contrib in people_list:
         if contrib is not None:
-            for j,x in enumerate(project.tasks):
-                other_skill, other_lvl  = x
-                if skill == other_skill: continue
-                if other_skill in contrib.skills and contrib.skills[other_skill] >= other_lvl:
-                    can_mentor.add(j)
+            for skill in contrib.skills:
+                if skill not in has_skill:
+                    has_skill[skill]=0
+                else: 
+                    has_skill[skill]=max(has_skill[skill],contrib.skills[skill])
+    for j,x in enumerate(project.tasks):
+        skill, lvl  = x
+        if skill in has_skill and has_skill[skill] >= lvl:
+            can_mentor.add(j)
     # adding mentees when there's a mentor present
     for i,x in enumerate(project.tasks):
         skill, lvl = x
@@ -112,26 +131,31 @@ def add_mentees(people_list, used_people, project, problem):
                     for c in most_available(possible_contrib):
                         if c.name not in used_people:
                             contrib = c
+                            mentees_added += 1
                             used_people.add(c.name)
-                    break
+                            break
+                    if contrib is not None: break
                 if contrib is not None:
                     #print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
                     people_list[i] = contrib
     # finally, retry by adding anyone with a pulse ;) when a needed mentored skill has level 1
     for i,x in enumerate(project.tasks):
         skill, lvl = x
+        contrib = people_list[i]
         if lvl == 1:
-            contrib = people_list[i]
             if contrib is None:
                 if i in can_mentor:
                     for c in most_available(problem.contribs.values()):
                         if c.name not in used_people:
                             contrib = c
+                            mentees_added += 1
                             used_people.add(c.name)
                             break
                     if contrib is not None:
                         #print(f"[debug mentee] added a mentee with skill {skill} level {lvl-1}")
                         people_list[i] = contrib
+        if contrib is None: needs_someone = True
+    return mentees_added, needs_someone
 
 def skill_up_people(people_list, project, problem):
     # Skill up people
@@ -171,12 +195,13 @@ def naive(problem):
         for project in projects:
             used_people = set()
             
-            mentoring = False
+            mentoring = False 
             if mentoring:
-               people_list = add_people(used_people, project, problem,stop_early=False)
-               add_mentees(people_list, used_people, project, problem)
+               people_list, has_someone, needs_someone = add_people(used_people, project, problem,stop_early=False)
+               if has_someone and needs_someone:
+                   add_mentees(people_list, used_people, project, problem)
             else:
-               people_list = add_people(used_people, project, problem)
+               people_list, osef, osef = add_people(used_people, project, problem)
 
             #print(people_list)
             if None not in people_list:
