@@ -23,11 +23,11 @@ def finish_current_projects(day, current_projects, time_remaining, used_people, 
             skill_up_people(people, project, problem)
             # calculate score
             if day < project.B:
-                points = project.S
-                if verbose: print("[debug greedy score]",project_name,"done on time",day,"before",project.B,"points",points,"total so far",final_score)
+                points += project.S
+                if verbose: print("[score preview]",project_name,"done on time",day,"before",project.B,"points",points,"total so far",final_score)
             else:
-                points = max(0,project.S-1-(day-project.B))
-                if verbose: print("[debug greedy score]", project_name,"done after time",day,"before",project.B,"points",points,"total so far",final_score)
+                points += max(0,project.S-1-(day-project.B))
+                if verbose: print("[score preview]", project_name,"done after time",day,"before",project.B,"points",points,"total so far",final_score)
         else:
             new_current_projects += [project_name]
     current_projects = new_current_projects
@@ -64,9 +64,11 @@ def schedule_packing(problem):
         remaining_projects += [project]
 
     #remaining_projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D**2*p.R))[::-1]
-    remaining_projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D*p.R))[::-1]
+    #remaining_projects = sorted(remaining_projects, key= lambda p:  p.S/(p.D*p.R))[::-1]
     #remaining_projects = sorted(remaining_projects, key= lambda p:  p.B)
-    #remaining_projects = sorted(remaining_projects, key= lambda p:  p.S)[::-1]
+    remaining_projects = sorted(remaining_projects, key= lambda p:  p.S)
+    #remaining_projects = sorted(remaining_projects, key= lambda p:  p.mean_lvl)
+    #remaining_projects = sorted(remaining_projects, key= lambda p:  p.max_lvl)[::-1]
     used_people = set()
     interesting_days = set([0])
     nb_people_total = len(problem.contribs)
@@ -95,7 +97,7 @@ def schedule_packing(problem):
                 else:
                     mentees_added = 0
                     test_used_people = used_people.copy()
-                    mentoring = True 
+                    mentoring = False 
                     if mentoring:
                         people_list, has_someone, needs_someone = add_people(test_used_people, project, problem, stop_early=False)
                         if has_someone and needs_someone:
@@ -111,7 +113,7 @@ def schedule_packing(problem):
                         for skill, lvl in c.skills.items():
                             problem.contributor_skills[skill][lvl].remove(c)
                     #sorted_used_people = tuple(sorted(list(used_people)))
-                    if verbose: print(f"[debug greedy] {project_name} assigned! day {day} with {len(people_list)} people" + (f" ({mentees_added} mentees)" if mentees_added>0 else "") + f" [{len(problem.contribs)-len(used_people)} people available, {len(remaining_projects)} projects in pile]")
+                    if verbose: print(f"[greedy] {project_name} assigned! day {day} with {len(people_list)} people" + (f" ({mentees_added} mentees)" if mentees_added>0 else "") + f" [{len(problem.contribs)-len(used_people)} people available, {len(remaining_projects)} projects in pile]")
                     current_projects += [project_name]
                     interesting_days.add(day+project.D)
                     time_remaining[project_name] = project.D
@@ -142,5 +144,6 @@ def schedule_packing(problem):
         # it's a new day
         day += 1
         
+    print("solution done, score",final_score)
     return sol
 

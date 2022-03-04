@@ -33,6 +33,7 @@ def parse():
             project.skills += [(skill, lvl)]
             project.tasks.append((skill, lvl))
             project.mean_lvl = sum([x[1] for x in project.skills])/len(project.skills)
+            project.max_lvl = max([x[1] for x in project.skills])
 
         prob.projects[name] = project
 
@@ -91,8 +92,8 @@ def add_people(used_people,  project, problem,stop_early=True):
                         break
                 if contrib is not None: break
         people_list.append(contrib)
-        if stop_early and contrib is None: break
         if contrib is None: needs_someone = True
+        if stop_early and contrib is None: break
 
     return people_list, has_someone, needs_someone
 
@@ -231,7 +232,6 @@ if __name__ == "__main__":
     else: 
         solution = greedy.schedule_packing(problem)
 
-    solution.print()
     solution.print(stderr)
     if "--score" in argv:
         print(solution.score(problem))
